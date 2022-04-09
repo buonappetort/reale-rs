@@ -23,11 +23,11 @@ impl Ammortization {
         // TODO: OH BOY TIME TO IMPLEMENT SOME MATH!!!
         // How to calculate a monthly mortgage payment (TMP)
         // TMP = ( P * ( r * ( ( 1 + r )^n ) ) ) / ( ( (1 + r)^n ) - 1 );
-        let P = loan_amount.clone();
+        let p = loan_amount.clone();
         let r = annual_interest_rate / 12.0;
         let n = periods * 12;
         let total_monthly_payment =
-            (P * (r * ((1.0 + r).powf(n.into())))) / (((1.0 + r).powf(n.into())) - 1.0);
+            (p * (r * ((1.0 + r).powf(n.into())))) / (((1.0 + r).powf(n.into())) - 1.0);
         Ammortization {
             annual_interest_rate,
             periods,
@@ -87,6 +87,8 @@ fn main() {
     let income = MONTHLY_RENT.clone();
 
     println!("Monthly Gross Income: {}", &income);
+
+    
 }
 
 #[test]
