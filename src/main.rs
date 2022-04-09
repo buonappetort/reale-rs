@@ -1,5 +1,10 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::env;
+
+use dotenvy::dotenv;
+
+use reqwest::Url;
 
 const MONTHLY_RENT: i32 = 2500;
 
@@ -78,17 +83,52 @@ fn calculate_expenses() -> () {
     );
 }
 
-fn main() {
-    // println!("Mortage Information");
+#[tokio::main]
+async fn main() {
+    //TODO: command line inputs
+
+    // load environment variables
+    dotenv().ok();
 
     println!("Monthly Expenses");
 
     let expenses = calculate_expenses();
     let income = MONTHLY_RENT.clone();
-
-    println!("Monthly Gross Income: {}", &income);
-
     
+    let address = "137 Highland Ave, Jersey City, NJ 07306";
+
+    // query rentometer for the rents for a given property
+    //let market_rent = Rentometer::new(&address); 
+    let http_client = reqwest::Client::new();
+    const RENTOMETER_URL: &str = "https://www.rentometer.com/api/v1/summary";
+    // bedrooms is required by the rentometer api
+    // TODO: query the bedrooms from some public listing so
+    // we can just enter the address alone
+    let bedrooms = "2";
+
+    let search_params = [
+        ("api_key", env::var("RENTOMETER_API_KEY").ok().unwrap()), // <-- ?
+        ("address", address.to_string()), 
+        ("bedrooms", bedrooms.to_string())
+    ];
+
+    let body = 
+        http_client
+            .get(RENTOMETER_URL.clone())
+            .query(&search_params)
+            .send()
+            .await
+            // await? <-- why doesn't this work????
+            .ok()
+            .unwrap()
+            .text()
+            .await
+            // await? < -- and this!!
+            .ok()
+            .unwrap();
+
+    println!("Your rentometer response: {}", body);
+    println!("Monthly Gross Income: {}", &income);
 }
 
 #[test]
